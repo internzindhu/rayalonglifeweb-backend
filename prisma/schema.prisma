@@ -1,0 +1,363 @@
+// Prisma schema aligned with the Supabase database (mkvydwpkzflndxvaopbn)
+// Do NOT run prisma migrate — DB is already in the correct state.
+// Run: npx prisma db pull  (verify), then npx prisma generate
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─────────────────────────────────────────────
+// HOTEL
+// ─────────────────────────────────────────────
+
+model Hotel {
+  id                     String    @id @default(uuid()) @db.Uuid
+  name                   String
+  website                String?
+  location               String?
+  address                String?
+  chain_name             String?
+  marketing_material     Json?
+  property_type          String?
+  min_nights             Int?
+  rooms_count            Int?
+  max_occupancy          Int?
+  doctors_count          Int?
+  medical_report_support Boolean?
+  kid_friendly           Boolean?
+  min_age                Int?
+  created_at             DateTime  @default(now())
+  ownership_type         String?
+  star_classification    String?
+  no_min_nights          Boolean   @default(false)
+  doctors_available      Boolean?
+  consultation_time      String?
+  pricing_notes          String?
+  commission_rate        String?
+  rates_currency         String?
+  contact_name           String?
+  contact_number         String?
+  contact_email          String?
+  transfers_info         String?
+  sustainability_csr     String?
+  remarks                String?
+  data_fed_by            String?
+  updated_at             DateTime  @updatedAt
+  hotel_style_id         Int?
+  description            String?
+  images                 String[]  @default([])
+  price                  String?
+  slogan_line            String?
+  rating                 Decimal?  @db.Decimal(3, 2)
+  reviews_count          Int       @default(0)
+  is_active              Boolean   @default(true)
+
+  hotel_style        HotelStyle?            @relation(fields: [hotel_style_id], references: [id], onDelete: SetNull)
+  property_types     HotelPropertyType[]
+  facilities         HotelFacility[]
+  room_features      HotelRoomFeature[]
+  dining_features    HotelDiningFeature[]
+  meal_plans         HotelMealPlan[]
+  cuisine_types      HotelCuisineType[]
+  activities         HotelActivity[]
+  restrictions       HotelRestriction[]
+  setting_types      HotelSettingType[]
+  wellness_offerings HotelWellnessOffering[]
+  inquiries          Inquiry[]
+
+  @@map("hotels")
+}
+
+// ─────────────────────────────────────────────
+// LOOKUP TABLES
+// ─────────────────────────────────────────────
+
+model PropertyType {
+  id     Int                 @id @default(autoincrement())
+  name   String              @unique
+  hotels HotelPropertyType[]
+
+  @@map("property_types")
+}
+
+model Facility {
+  id     Int             @id @default(autoincrement())
+  name   String          @unique
+  hotels HotelFacility[]
+
+  @@map("facilities")
+}
+
+model RoomFeature {
+  id     Int               @id @default(autoincrement())
+  name   String            @unique
+  hotels HotelRoomFeature[]
+
+  @@map("room_features")
+}
+
+model DiningFeature {
+  id     Int                  @id @default(autoincrement())
+  name   String               @unique
+  hotels HotelDiningFeature[]
+
+  @@map("dining_features")
+}
+
+model MealPlan {
+  id     Int            @id @default(autoincrement())
+  name   String         @unique
+  hotels HotelMealPlan[]
+
+  @@map("meal_plans")
+}
+
+model CuisineType {
+  id     Int               @id @default(autoincrement())
+  name   String            @unique
+  hotels HotelCuisineType[]
+
+  @@map("cuisine_types")
+}
+
+model Activity {
+  id     Int             @id @default(autoincrement())
+  name   String          @unique
+  hotels HotelActivity[]
+
+  @@map("activities")
+}
+
+model Restriction {
+  id     Int               @id @default(autoincrement())
+  name   String            @unique
+  hotels HotelRestriction[]
+
+  @@map("restrictions")
+}
+
+model HotelStyle {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  hotels Hotel[]
+
+  @@map("hotel_styles")
+}
+
+model SettingType {
+  id     Int               @id @default(autoincrement())
+  name   String            @unique
+  hotels HotelSettingType[]
+
+  @@map("setting_types")
+}
+
+model WellnessOffering {
+  id     Int                     @id @default(autoincrement())
+  name   String                  @unique
+  hotels HotelWellnessOffering[]
+
+  @@map("wellness_offerings")
+}
+
+// ─────────────────────────────────────────────
+// JUNCTION TABLES
+// ─────────────────────────────────────────────
+
+model HotelPropertyType {
+  hotel_id         String       @db.Uuid
+  property_type_id Int
+  hotel            Hotel        @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  property_type    PropertyType @relation(fields: [property_type_id], references: [id], onDelete: Cascade)
+
+  @@id([hotel_id, property_type_id])
+  @@map("hotel_property_types")
+}
+
+model HotelFacility {
+  hotel_id    String   @db.Uuid
+  facility_id Int
+  hotel       Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  facility    Facility @relation(fields: [facility_id], references: [id], onDelete: Cascade)
+
+  @@id([hotel_id, facility_id])
+  @@map("hotel_facilities")
+}
+
+model HotelRoomFeature {
+  hotel_id        String      @db.Uuid
+  room_feature_id Int
+  hotel           Hotel       @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  room_feature    RoomFeature @relation(fields: [room_feature_id], references: [id], onDelete: Cascade)
+
+  @@id([hotel_id, room_feature_id])
+  @@map("hotel_room_features")
+}
+
+model HotelDiningFeature {
+  hotel_id          String        @db.Uuid
+  dining_feature_id Int
+  hotel             Hotel         @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  dining_feature    DiningFeature @relation(fields: [dining_feature_id], references: [id], onDelete: Cascade)
+
+  @@id([hotel_id, dining_feature_id])
+  @@map("hotel_dining_features")
+}
+
+model HotelMealPlan {
+  hotel_id     String   @db.Uuid
+  meal_plan_id Int
+  hotel        Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  meal_plan    MealPlan @relation(fields: [meal_plan_id], references: [id], onDelete: Cascade)
+
+  @@id([hotel_id, meal_plan_id])
+  @@map("hotel_meal_plans")
+}
+
+model HotelCuisineType {
+  hotel_id        String      @db.Uuid
+  cuisine_type_id Int
+  hotel           Hotel       @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  cuisine_type    CuisineType @relation(fields: [cuisine_type_id], references: [id], onDelete: Cascade)
+
+  @@id([hotel_id, cuisine_type_id])
+  @@map("hotel_cuisine_types")
+}
+
+model HotelActivity {
+  hotel_id    String   @db.Uuid
+  activity_id Int
+  hotel       Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  activity    Activity @relation(fields: [activity_id], references: [id], onDelete: Cascade)
+
+  @@id([hotel_id, activity_id])
+  @@map("hotel_activities")
+}
+
+model HotelRestriction {
+  hotel_id       String      @db.Uuid
+  restriction_id Int
+  hotel          Hotel       @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  restriction    Restriction @relation(fields: [restriction_id], references: [id], onDelete: Cascade)
+
+  @@id([hotel_id, restriction_id])
+  @@map("hotel_restrictions")
+}
+
+model HotelSettingType {
+  hotel_id        String      @db.Uuid
+  setting_type_id Int
+  hotel           Hotel       @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  setting_type    SettingType @relation(fields: [setting_type_id], references: [id], onDelete: Cascade)
+
+  @@id([hotel_id, setting_type_id])
+  @@map("hotel_setting_types")
+}
+
+model HotelWellnessOffering {
+  hotel_id             String           @db.Uuid
+  wellness_offering_id Int
+  hotel                Hotel            @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  wellness_offering    WellnessOffering @relation(fields: [wellness_offering_id], references: [id], onDelete: Cascade)
+
+  @@id([hotel_id, wellness_offering_id])
+  @@map("hotel_wellness_offerings")
+}
+
+// ─────────────────────────────────────────────
+// LEAD CAPTURE TABLES
+// ─────────────────────────────────────────────
+
+model Inquiry {
+  id               String    @id @default(uuid()) @db.Uuid
+  hotel_id         String?   @db.Uuid
+  hotel_name       String
+  date_from        DateTime? @db.Date
+  date_to          DateTime? @db.Date
+  room_type        String?
+  people           Int?
+  transport_mode   String?
+  flight_included  String?
+  extras           String?
+  total_price      String?
+  gender           String?
+  full_name        String
+  email            String
+  country          String?
+  mobile           String?
+  comment          String?
+  status           String    @default("new")
+  created_at       DateTime  @default(now())
+
+  hotel Hotel? @relation(fields: [hotel_id], references: [id], onDelete: SetNull)
+
+  @@map("inquiries")
+}
+
+model Consultation {
+  id                String    @id @default(uuid()) @db.Uuid
+  gender            String?
+  name              String
+  country           String?
+  email             String
+  mobile            String?
+  preferred_contact String?
+  travel_month      String?
+  budget_min        String?
+  budget_max        String?
+  number_of_nights  Int?
+  schedule_datetime DateTime?
+  comment           String?
+  status            String    @default("new")
+  created_at        DateTime  @default(now())
+
+  @@map("consultations")
+}
+
+model Contact {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String
+  email      String
+  phone      String?
+  subject    String?
+  message    String
+  created_at DateTime @default(now())
+
+  @@map("contacts")
+}
+
+model Voucher {
+  id                  String   @id @default(uuid()) @db.Uuid
+  quantity            Int
+  voucher_value       Int?
+  custom_value        Int?
+  sender_full_name    String
+  sender_email        String
+  sender_contact      String?
+  receiver_first_name String
+  receiver_last_name  String?
+  receiver_email      String?
+  receiver_contact    String?
+  receive_method      String?
+  invoice_to_company  Boolean  @default(false)
+  notes               String?
+  status              String   @default("pending")
+  created_at          DateTime @default(now())
+
+  @@map("vouchers")
+}
+
+model QuestionnaireSubmission {
+  id          String   @id @default(uuid()) @db.Uuid
+  answers     Json
+  result_type String?
+  created_at  DateTime @default(now())
+
+  @@map("questionnaire_submissions")
+}
