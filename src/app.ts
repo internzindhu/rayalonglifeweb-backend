@@ -15,8 +15,28 @@ import uploadsRouter from './routes/uploads';
 
 const app = express();
 
+// ─── CORS ─────────────────────────────────────────────────────────────────────
+const defaultOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://rayaayurveda-hotel2.vercel.app',
+];
+const allowedOrigins: string[] =
+  process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
+    : defaultOrigins;
+
 // ─── Global middleware ────────────────────────────────────────────────────────
-app.use(cors());
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error(`Origin ${origin} not allowed by CORS`));
+    },
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger);

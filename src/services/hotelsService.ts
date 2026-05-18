@@ -95,8 +95,18 @@ export interface CreateHotelDto {
 
 export type UpdateHotelDto = Partial<CreateHotelDto>;
 
-// ─── Include shape — used for both list and detail responses ─────────────────
+// ─── Include shapes ───────────────────────────────────────────────────────────
 
+// Lightweight set for the list endpoint — only what the card grid needs
+export const hotelListInclude = {
+  facilities: {
+    include: { facility: { select: { id: true, name: true } } },
+    take: 4,
+  },
+  hotel_style: { select: { id: true, name: true } },
+} satisfies Prisma.HotelInclude;
+
+// Full hydration for detail / related / admin endpoints
 export const hotelFullInclude = {
   hotel_style:       true,
   property_types:    { include: { property_type: true } },
@@ -148,11 +158,11 @@ function buildWhereClause(query: HotelListQuery): Prisma.HotelWhereInput {
   }
   if (query.min_nights) {
     const val = parseInt(query.min_nights, 10);
-    if (!isNaN(val)) andConditions.push({ min_nights: { lte: val } });
+    if (!isNaN(val)) andConditions.push({ min_nights: { gte: val } });
   }
   if (query.max_nights) {
     const val = parseInt(query.max_nights, 10);
-    if (!isNaN(val)) andConditions.push({ min_nights: { gte: val } });
+    if (!isNaN(val)) andConditions.push({ min_nights: { lte: val } });
   }
   if (query.max_occupancy) {
     const val = parseInt(query.max_occupancy, 10);
@@ -204,7 +214,7 @@ export async function listHotels(
   const [hotels, total] = await Promise.all([
     prisma.hotel.findMany({
       where,
-      include: hotelFullInclude,
+      include: hotelListInclude,
       orderBy: { [sortBy]: sortOrder },
       skip,
       take,
