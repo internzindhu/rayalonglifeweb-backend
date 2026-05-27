@@ -1,7 +1,3 @@
-// Prisma schema aligned with the Supabase database (mkvydwpkzflndxvaopbn)
-// Do NOT run prisma migrate — DB is already in the correct state.
-// Run: npx prisma db pull  (verify), then npx prisma generate
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,19 +8,14 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// ─────────────────────────────────────────────
-// HOTEL
-// ─────────────────────────────────────────────
-
 model Hotel {
-  id                     String    @id @default(uuid()) @db.Uuid
+  id                     String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name                   String
   website                String?
   location               String?
   address                String?
   chain_name             String?
   marketing_material     Json?
-  property_type          String?
   min_nights             Int?
   rooms_count            Int?
   max_occupancy          Int?
@@ -32,51 +23,64 @@ model Hotel {
   medical_report_support Boolean?
   kid_friendly           Boolean?
   min_age                Int?
-  created_at             DateTime  @default(now())
-  ownership_type         String?
-  star_classification    String?
-  no_min_nights          Boolean   @default(false)
+  created_at             DateTime?               @default(now()) @db.Timestamp(6)
+  no_min_nights          Boolean                 @default(false)
   doctors_available      Boolean?
-  consultation_time      String?
-  pricing_notes          String?
-  commission_rate        String?
-  rates_currency         String?
-  contact_name           String?
-  contact_number         String?
-  contact_email          String?
-  transfers_info         String?
-  sustainability_csr     String?
   remarks                String?
-  data_fed_by            String?
-  updated_at             DateTime  @updatedAt
+  updated_at             DateTime                @default(now()) @updatedAt @db.Timestamp(6)
   hotel_style_id         Int?
   description            String?
-  images                 String[]  @default([])
   price                  String?
   slogan_line            String?
-  rating                 Decimal?  @db.Decimal(3, 2)
-  reviews_count          Int       @default(0)
-  is_active              Boolean   @default(true)
-
-  hotel_style        HotelStyle?            @relation(fields: [hotel_style_id], references: [id], onDelete: SetNull)
-  property_types     HotelPropertyType[]
-  facilities         HotelFacility[]
-  room_features      HotelRoomFeature[]
-  dining_features    HotelDiningFeature[]
-  meal_plans         HotelMealPlan[]
-  cuisine_types      HotelCuisineType[]
-  activities         HotelActivity[]
-  restrictions       HotelRestriction[]
-  setting_types      HotelSettingType[]
-  wellness_offerings HotelWellnessOffering[]
-  inquiries          Inquiry[]
+  rating                 Decimal?                @db.Decimal(3, 2)
+  reviews_count          Int                     @default(0)
+  is_active              Boolean                 @default(true)
+  property_type_raw      String?
+  min_nights_raw         String?
+  restrictions_raw       String?
+  rooms_raw              String?
+  min_age_raw            String?
+  cuisine_raw            String?
+  meal_plan_raw          String?
+  doctors_raw            String?
+  facilities_raw         String?
+  activities_raw         String?
+  unique_features        String?
+  video_url              String?
+  highlights             String[]
+  google_maps_url        String?
+  dining_features_raw    String?
+  activities             HotelActivity[]
+  cuisine_types          HotelCuisineType[]
+  dining_features        HotelDiningFeature[]
+  facilities             HotelFacility[]
+  images                 HotelImage[]
+  meal_plans             HotelMealPlan[]
+  property_types         HotelPropertyType[]
+  restrictions           HotelRestriction[]
+  room_features          HotelRoomFeature[]
+  setting_types          HotelSettingType[]
+  wellness_offerings     HotelWellnessOffering[]
+  hotel_style            HotelStyle?             @relation(fields: [hotel_style_id], references: [id], onUpdate: NoAction)
+  inquiries              Inquiry[]
 
   @@map("hotels")
 }
 
-// ─────────────────────────────────────────────
-// LOOKUP TABLES
-// ─────────────────────────────────────────────
+model HotelImage {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  hotel_id   String   @db.Uuid
+  url        String
+  sort_order Int      @default(0)
+  is_primary Boolean  @default(false)
+  caption    String?
+  alt_text   String?
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  hotel      Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([hotel_id], map: "idx_hotel_images_hotel_id")
+  @@map("hotel_images")
+}
 
 model PropertyType {
   id     Int                 @id @default(autoincrement())
@@ -95,8 +99,8 @@ model Facility {
 }
 
 model RoomFeature {
-  id     Int               @id @default(autoincrement())
-  name   String            @unique
+  id     Int                @id @default(autoincrement())
+  name   String             @unique
   hotels HotelRoomFeature[]
 
   @@map("room_features")
@@ -111,16 +115,16 @@ model DiningFeature {
 }
 
 model MealPlan {
-  id     Int            @id @default(autoincrement())
-  name   String         @unique
+  id     Int             @id @default(autoincrement())
+  name   String          @unique
   hotels HotelMealPlan[]
 
   @@map("meal_plans")
 }
 
 model CuisineType {
-  id     Int               @id @default(autoincrement())
-  name   String            @unique
+  id     Int                @id @default(autoincrement())
+  name   String             @unique
   hotels HotelCuisineType[]
 
   @@map("cuisine_types")
@@ -135,8 +139,8 @@ model Activity {
 }
 
 model Restriction {
-  id     Int               @id @default(autoincrement())
-  name   String            @unique
+  id     Int                @id @default(autoincrement())
+  name   String             @unique
   hotels HotelRestriction[]
 
   @@map("restrictions")
@@ -151,8 +155,8 @@ model HotelStyle {
 }
 
 model SettingType {
-  id     Int               @id @default(autoincrement())
-  name   String            @unique
+  id     Int                @id @default(autoincrement())
+  name   String             @unique
   hotels HotelSettingType[]
 
   @@map("setting_types")
@@ -166,15 +170,11 @@ model WellnessOffering {
   @@map("wellness_offerings")
 }
 
-// ─────────────────────────────────────────────
-// JUNCTION TABLES
-// ─────────────────────────────────────────────
-
 model HotelPropertyType {
   hotel_id         String       @db.Uuid
   property_type_id Int
-  hotel            Hotel        @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
-  property_type    PropertyType @relation(fields: [property_type_id], references: [id], onDelete: Cascade)
+  hotel            Hotel        @relation(fields: [hotel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  property_type    PropertyType @relation(fields: [property_type_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([hotel_id, property_type_id])
   @@map("hotel_property_types")
@@ -183,8 +183,8 @@ model HotelPropertyType {
 model HotelFacility {
   hotel_id    String   @db.Uuid
   facility_id Int
-  hotel       Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
-  facility    Facility @relation(fields: [facility_id], references: [id], onDelete: Cascade)
+  facility    Facility @relation(fields: [facility_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  hotel       Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([hotel_id, facility_id])
   @@map("hotel_facilities")
@@ -193,8 +193,8 @@ model HotelFacility {
 model HotelRoomFeature {
   hotel_id        String      @db.Uuid
   room_feature_id Int
-  hotel           Hotel       @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
-  room_feature    RoomFeature @relation(fields: [room_feature_id], references: [id], onDelete: Cascade)
+  hotel           Hotel       @relation(fields: [hotel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  room_feature    RoomFeature @relation(fields: [room_feature_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([hotel_id, room_feature_id])
   @@map("hotel_room_features")
@@ -203,8 +203,8 @@ model HotelRoomFeature {
 model HotelDiningFeature {
   hotel_id          String        @db.Uuid
   dining_feature_id Int
-  hotel             Hotel         @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
-  dining_feature    DiningFeature @relation(fields: [dining_feature_id], references: [id], onDelete: Cascade)
+  dining_feature    DiningFeature @relation(fields: [dining_feature_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  hotel             Hotel         @relation(fields: [hotel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([hotel_id, dining_feature_id])
   @@map("hotel_dining_features")
@@ -213,8 +213,8 @@ model HotelDiningFeature {
 model HotelMealPlan {
   hotel_id     String   @db.Uuid
   meal_plan_id Int
-  hotel        Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
-  meal_plan    MealPlan @relation(fields: [meal_plan_id], references: [id], onDelete: Cascade)
+  hotel        Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  meal_plan    MealPlan @relation(fields: [meal_plan_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([hotel_id, meal_plan_id])
   @@map("hotel_meal_plans")
@@ -223,8 +223,8 @@ model HotelMealPlan {
 model HotelCuisineType {
   hotel_id        String      @db.Uuid
   cuisine_type_id Int
-  hotel           Hotel       @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
-  cuisine_type    CuisineType @relation(fields: [cuisine_type_id], references: [id], onDelete: Cascade)
+  cuisine_type    CuisineType @relation(fields: [cuisine_type_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  hotel           Hotel       @relation(fields: [hotel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([hotel_id, cuisine_type_id])
   @@map("hotel_cuisine_types")
@@ -233,8 +233,8 @@ model HotelCuisineType {
 model HotelActivity {
   hotel_id    String   @db.Uuid
   activity_id Int
-  hotel       Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
-  activity    Activity @relation(fields: [activity_id], references: [id], onDelete: Cascade)
+  activity    Activity @relation(fields: [activity_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  hotel       Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([hotel_id, activity_id])
   @@map("hotel_activities")
@@ -243,8 +243,8 @@ model HotelActivity {
 model HotelRestriction {
   hotel_id       String      @db.Uuid
   restriction_id Int
-  hotel          Hotel       @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
-  restriction    Restriction @relation(fields: [restriction_id], references: [id], onDelete: Cascade)
+  hotel          Hotel       @relation(fields: [hotel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  restriction    Restriction @relation(fields: [restriction_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([hotel_id, restriction_id])
   @@map("hotel_restrictions")
@@ -253,8 +253,8 @@ model HotelRestriction {
 model HotelSettingType {
   hotel_id        String      @db.Uuid
   setting_type_id Int
-  hotel           Hotel       @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
-  setting_type    SettingType @relation(fields: [setting_type_id], references: [id], onDelete: Cascade)
+  hotel           Hotel       @relation(fields: [hotel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  setting_type    SettingType @relation(fields: [setting_type_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([hotel_id, setting_type_id])
   @@map("hotel_setting_types")
@@ -263,45 +263,43 @@ model HotelSettingType {
 model HotelWellnessOffering {
   hotel_id             String           @db.Uuid
   wellness_offering_id Int
-  hotel                Hotel            @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
-  wellness_offering    WellnessOffering @relation(fields: [wellness_offering_id], references: [id], onDelete: Cascade)
+  hotel                Hotel            @relation(fields: [hotel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  wellness_offering    WellnessOffering @relation(fields: [wellness_offering_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([hotel_id, wellness_offering_id])
   @@map("hotel_wellness_offerings")
 }
 
-// ─────────────────────────────────────────────
-// LEAD CAPTURE TABLES
-// ─────────────────────────────────────────────
-
 model Inquiry {
-  id               String    @id @default(uuid()) @db.Uuid
-  hotel_id         String?   @db.Uuid
-  hotel_name       String
-  date_from        DateTime? @db.Date
-  date_to          DateTime? @db.Date
-  room_type        String?
-  people           Int?
-  transport_mode   String?
-  flight_included  String?
-  extras           String?
-  total_price      String?
-  gender           String?
-  full_name        String
-  email            String
-  country          String?
-  mobile           String?
-  comment          String?
-  status           String    @default("new")
-  created_at       DateTime  @default(now())
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  hotel_id        String?   @db.Uuid
+  hotel_name      String
+  date_from       DateTime? @db.Date
+  date_to         DateTime? @db.Date
+  room_type       String?
+  people          Int?
+  transport_mode  String?
+  flight_included String?
+  extras          String?
+  total_price     String?
+  gender          String?
+  full_name       String
+  email           String
+  country         String?
+  mobile          String?
+  comment         String?
+  status          String    @default("new")
+  created_at      DateTime  @default(now()) @db.Timestamptz(6)
+  hotel           Hotel?    @relation(fields: [hotel_id], references: [id], onUpdate: NoAction)
 
-  hotel Hotel? @relation(fields: [hotel_id], references: [id], onDelete: SetNull)
-
+  @@index([created_at(sort: Desc)])
+  @@index([hotel_id])
+  @@index([status])
   @@map("inquiries")
 }
 
 model Consultation {
-  id                String    @id @default(uuid()) @db.Uuid
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   gender            String?
   name              String
   country           String?
@@ -312,28 +310,31 @@ model Consultation {
   budget_min        String?
   budget_max        String?
   number_of_nights  Int?
-  schedule_datetime DateTime?
+  schedule_datetime DateTime? @db.Timestamptz(6)
   comment           String?
   status            String    @default("new")
-  created_at        DateTime  @default(now())
+  created_at        DateTime  @default(now()) @db.Timestamptz(6)
 
+  @@index([created_at(sort: Desc)])
+  @@index([status])
   @@map("consultations")
 }
 
 model Contact {
-  id         String   @id @default(uuid()) @db.Uuid
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name       String
   email      String
   phone      String?
   subject    String?
   message    String
-  created_at DateTime @default(now())
+  created_at DateTime @default(now()) @db.Timestamptz(6)
 
+  @@index([created_at(sort: Desc)])
   @@map("contacts")
 }
 
 model Voucher {
-  id                  String   @id @default(uuid()) @db.Uuid
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   quantity            Int
   voucher_value       Int?
   custom_value        Int?
@@ -348,16 +349,19 @@ model Voucher {
   invoice_to_company  Boolean  @default(false)
   notes               String?
   status              String   @default("pending")
-  created_at          DateTime @default(now())
+  created_at          DateTime @default(now()) @db.Timestamptz(6)
 
+  @@index([created_at(sort: Desc)])
+  @@index([status])
   @@map("vouchers")
 }
 
 model QuestionnaireSubmission {
-  id          String   @id @default(uuid()) @db.Uuid
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   answers     Json
   result_type String?
-  created_at  DateTime @default(now())
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
 
+  @@index([created_at(sort: Desc)], map: "questionnaire_created_at_idx")
   @@map("questionnaire_submissions")
 }
