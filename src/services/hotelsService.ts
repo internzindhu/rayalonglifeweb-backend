@@ -135,7 +135,7 @@ export const hotelFullInclude = {
     orderBy: { sort_order: 'asc' as const },
   },
   monthly_prices: {
-    orderBy: [{ year: 'asc' as const }, { month: 'asc' as const }],
+    orderBy: { valid_from: 'asc' as const },
   },
 };
 

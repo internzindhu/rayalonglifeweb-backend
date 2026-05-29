@@ -69,15 +69,17 @@ model Hotel {
 }
 
 model HotelMonthlyPrice {
-  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  hotel_id String  @db.Uuid
-  month    Int
-  year     Int
-  price    Decimal
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  hotel_id   String   @db.Uuid
+  price      Decimal  @db.Decimal(10, 2)
+  currency   String   @default("USD")
+  valid_from DateTime @db.Date
+  valid_to   DateTime @db.Date
+  occupancy  String?
 
-  hotel    Hotel   @relation(fields: [hotel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  hotel      Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@unique([hotel_id, month, year])
+  @@index([hotel_id, valid_from, valid_to], map: "idx_hotel_monthly_prices_hotel_dates")
   @@map("hotel_monthly_prices")
 }
 
