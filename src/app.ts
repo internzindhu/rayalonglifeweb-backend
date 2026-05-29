@@ -20,6 +20,7 @@ const defaultOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   'https://rayaayurveda-hotel2.vercel.app',
+  'https://raya-web-admin.vercel.app',
 ];
 const allowedOrigins: string[] =
   process.env.CORS_ORIGINS
