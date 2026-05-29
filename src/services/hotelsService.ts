@@ -134,6 +134,9 @@ export const hotelFullInclude = {
   images: {
     orderBy: { sort_order: 'asc' as const },
   },
+  monthly_prices: {
+    orderBy: [{ year: 'asc' as const }, { month: 'asc' as const }],
+  },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
