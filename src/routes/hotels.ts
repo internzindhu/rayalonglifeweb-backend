@@ -54,7 +54,13 @@ const hotelImageWithIdParams = z.object({
 
 const listHotelsSchema = z.object({
   query: z.object({
+    // Text search fields
     location:               z.string().optional(),
+    // FIX: Added `search` — used for hotel name searches from the frontend.
+    // Previously absent, causing the Zod validator to silently strip it before
+    // it could reach the service layer.
+    search:                 z.string().optional(),
+    // Scalar filters
     hotel_style_id:         z.string().regex(/^\d+$/).optional(),
     min_nights:             z.string().regex(/^\d+$/).optional(),
     max_nights:             z.string().regex(/^\d+$/).optional(),
@@ -62,6 +68,7 @@ const listHotelsSchema = z.object({
     kid_friendly:           z.enum(['true', 'false']).optional(),
     doctors_available:      z.enum(['true', 'false']).optional(),
     medical_report_support: z.enum(['true', 'false']).optional(),
+    // Junction filters (comma-separated IDs)
     facilities:             z.string().optional(),
     activities:             z.string().optional(),
     meal_plans:             z.string().optional(),
@@ -72,11 +79,18 @@ const listHotelsSchema = z.object({
     wellness_offerings:     z.string().optional(),
     setting_types:          z.string().optional(),
     property_types:         z.string().optional(),
+    // Price range (informational — filtered client-side for now)
+    min_price:              z.string().optional(),
+    max_price:              z.string().optional(),
+    // Sorting & pagination
     sort_by:                z.enum(['name', 'created_at', 'rating', 'price']).optional(),
     sort_order:             z.enum(['asc', 'desc']).optional(),
     page:                   z.string().regex(/^\d+$/).optional(),
     limit:                  z.string().regex(/^\d+$/).optional(),
-  }),
+  // FIX: .passthrough() ensures any future params the frontend adds are not
+  // silently stripped before they reach the controller/service. Previously
+  // the strict object shape was dropping `ownership_type`, `search`, etc.
+  }).passthrough(),
   body:   z.object({}).optional(),
   params: z.object({}).optional(),
 });
@@ -92,7 +106,6 @@ const createHotelSchema = z.object({
     chain_name:              z.string().optional(),
     marketing_material:      z.record(z.unknown()).optional(),
     google_maps_url:         z.string().url().optional(),
-    // Scalar filter fields
     min_nights:              z.number().int().min(0).optional(),
     no_min_nights:           z.boolean().optional(),
     rooms_count:             z.number().int().min(0).optional(),
@@ -102,7 +115,6 @@ const createHotelSchema = z.object({
     medical_report_support:  z.boolean().optional(),
     kid_friendly:            z.boolean().optional(),
     min_age:                 z.number().int().min(0).optional(),
-    // Raw text
     property_type_raw:       z.string().optional(),
     min_nights_raw:          z.string().optional(),
     rooms_raw:               z.string().optional(),
@@ -114,7 +126,6 @@ const createHotelSchema = z.object({
     cuisine_raw:             z.string().optional(),
     meal_plan_raw:           z.string().optional(),
     dining_features_raw:     z.string().optional(),
-    // Editorial
     description:             z.string().optional(),
     slogan_line:             z.string().optional(),
     unique_features:         z.string().optional(),
@@ -126,7 +137,6 @@ const createHotelSchema = z.object({
     remarks:                 z.string().optional(),
     hotel_style_id:          z.number().int().positive().optional(),
     is_active:               z.boolean().optional(),
-    // Junction IDs
     facility_ids:            idsArray,
     activity_ids:            idsArray,
     meal_plan_ids:           idsArray,

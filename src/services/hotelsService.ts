@@ -20,6 +20,10 @@ type TxClient = Omit<
 
 export interface HotelListQuery {
   location?:               string;
+  // FIX: Added `search` param — matches against hotel name (case-insensitive
+  // substring). Used when the user types a hotel name in the search box and
+  // presses Search or selects a hotel from the dropdown.
+  search?:                 string;
   min_nights?:             string;
   max_nights?:             string;
   max_occupancy?:          string;
@@ -97,8 +101,6 @@ export interface CreateHotelDto {
 export type UpdateHotelDto = Partial<CreateHotelDto>;
 
 // ─── Include shapes ───────────────────────────────────────────────────────────
-// Note: `satisfies Prisma.HotelInclude` type constraints are omitted here;
-// they will work correctly after `npx prisma generate` regenerates the client.
 
 export const hotelListInclude = {
   hotel_style: { select: { id: true, name: true } },
@@ -153,9 +155,22 @@ function buildWhereClause(query: HotelListQuery) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const andConditions: any[] = [{ is_active: true }];
 
+  // FIX: `location` does a case-insensitive substring match on the location
+  // field (e.g. "Bentota" matches "Bentota").
   if (query.location) {
-    andConditions.push({ location: { contains: query.location, mode: 'insensitive' } });
+    andConditions.push({
+      location: { contains: query.location, mode: 'insensitive' },
+    });
   }
+
+  // FIX: `search` does a case-insensitive substring match on hotel name.
+  // Used when a user types a hotel name rather than a city.
+  if (query.search) {
+    andConditions.push({
+      name: { contains: query.search, mode: 'insensitive' },
+    });
+  }
+
   if (query.hotel_style_id) {
     const id = parseInt(query.hotel_style_id, 10);
     if (!isNaN(id)) andConditions.push({ hotel_style_id: id });
