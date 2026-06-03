@@ -19,6 +19,7 @@ const app = express();
 const defaultOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
+  'http://localhost:5173',
   'https://rayaayurveda-hotel2.vercel.app',
   'https://raya-web-admin.vercel.app',
 ];
