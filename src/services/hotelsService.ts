@@ -119,6 +119,9 @@ export const hotelListInclude = {
   wellness_offerings: {
     include: { wellness_offering: { select: { id: true, name: true } } },
   },
+  monthly_prices: {
+    orderBy: { valid_from: 'asc' as const },
+  },
 };
 
 export const hotelFullInclude = {
