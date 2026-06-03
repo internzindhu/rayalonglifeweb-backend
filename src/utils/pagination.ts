@@ -21,14 +21,15 @@ export interface PaginatedResult<T> {
 
 /**
  * Convert raw page/limit query values into safe integers.
- * Defaults: page=1, limit=20; cap: limit≤100.
+ * Defaults: page=1, limit=defaultLimit; cap: limit≤1000.
  */
 export function parsePagination(
   rawPage: unknown,
   rawLimit: unknown,
+  defaultLimit = 20,
 ): PaginationParams {
   const page = Math.max(1, parseInt(String(rawPage ?? '1'), 10) || 1);
-  const limit = Math.min(100, Math.max(1, parseInt(String(rawLimit ?? '20'), 10) || 20));
+  const limit = Math.min(1000, Math.max(1, parseInt(String(rawLimit ?? String(defaultLimit)), 10) || defaultLimit));
   return { page, limit };
 }
 

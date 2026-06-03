@@ -229,7 +229,7 @@ const ALLOWED_SORT = ['name', 'created_at', 'rating', 'price'] as const;
 type SortField = (typeof ALLOWED_SORT)[number];
 
 export async function listHotels(query: HotelListQuery): Promise<PaginatedResult<unknown>> {
-  const pagination = parsePagination(query.page, query.limit);
+  const pagination = parsePagination(query.page, query.limit, 200);
   const { skip, take } = toPrismaSkipTake(pagination);
 
   const sortBy: SortField = ALLOWED_SORT.includes(query.sort_by as SortField)
