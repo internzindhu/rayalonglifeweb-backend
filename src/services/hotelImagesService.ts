@@ -4,6 +4,7 @@ import prisma from '../config/database';
 import { supabase } from '../config/supabase';
 import { AppError } from '../middlewares/errorHandler';
 import { PrismaClient } from '@prisma/client';
+import sharp from 'sharp';
 
 type TxClient = Omit<
   PrismaClient,
@@ -30,9 +31,15 @@ export interface UpdateImageDto {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function storagePath(originalName: string): string {
-  const ext = originalName.split('.').pop() ?? 'jpg';
-  return `hotels/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+function storagePath(): string {
+  return `hotels/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+}
+
+async function compressImage(buffer: Buffer): Promise<Buffer> {
+  return sharp(buffer)
+    .resize({ width: 3000, height: 3000, fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality: 85, progressive: true })
+    .toBuffer();
 }
 
 // ─── Service methods ──────────────────────────────────────────────────────────
@@ -51,19 +58,18 @@ export async function listImages(hotelId: string): Promise<unknown[]> {
  * If is_primary is true, the existing primary image for the hotel is demoted first.
  */
 export async function addImage(
-  hotelId:      string,
-  buffer:       Buffer,
-  originalName: string,
-  mimetype:     string,
-  dto:          AddImageDto,
+  hotelId: string,
+  buffer:  Buffer,
+  dto:     AddImageDto,
 ): Promise<unknown> {
   await assertHotelExists(hotelId);
 
-  const path = storagePath(originalName);
+  const path = storagePath();
+  const compressed = await compressImage(buffer);
 
   const { error: uploadError } = await supabase.storage
     .from(BUCKET)
-    .upload(path, buffer, { contentType: mimetype, upsert: false });
+    .upload(path, compressed, { contentType: 'image/jpeg', upsert: false });
 
   if (uploadError) throw new AppError(`Storage upload failed: ${uploadError.message}`, 500);
 

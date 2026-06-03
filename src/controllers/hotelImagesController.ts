@@ -27,8 +27,6 @@ export async function addImage(req: Request, res: Response, next: NextFunction):
     const image = await hotelImagesService.addImage(
       req.params.hotelId,
       req.file.buffer,
-      req.file.originalname,
-      req.file.mimetype,
       dto,
     );
 
