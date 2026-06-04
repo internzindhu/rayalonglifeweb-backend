@@ -18,6 +18,8 @@ const app = express();
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 const defaultOrigins = [
   'http://localhost:3000',
+  'https://www.rayalonglife.com',
+  'https://rayalonglife.com',
   'http://localhost:5173',
   'http://localhost:5174',
   'https://rayaayurveda-hotel2.vercel.app',
