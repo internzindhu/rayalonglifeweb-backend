@@ -4,7 +4,6 @@ import prisma from '../config/database';
 import { supabase } from '../config/supabase';
 import { AppError } from '../middlewares/errorHandler';
 import { PrismaClient } from '@prisma/client';
-import sharp from 'sharp';
 
 type TxClient = Omit<
   PrismaClient,
@@ -16,6 +15,7 @@ const BUCKET = 'hotel-images';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface AddImageDto {
+  url:          string;
   is_primary?:  boolean;
   sort_order?:  number;
   caption?:     string;
@@ -27,19 +27,6 @@ export interface UpdateImageDto {
   sort_order?:  number;
   caption?:     string;
   alt_text?:    string;
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function storagePath(): string {
-  return `hotels/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
-}
-
-async function compressImage(buffer: Buffer): Promise<Buffer> {
-  return sharp(buffer)
-    .resize({ width: 3000, height: 3000, fit: 'inside', withoutEnlargement: true })
-    .jpeg({ quality: 85, progressive: true })
-    .toBuffer();
 }
 
 // ─── Service methods ──────────────────────────────────────────────────────────
@@ -54,29 +41,16 @@ export async function listImages(hotelId: string): Promise<unknown[]> {
 }
 
 /**
- * Upload a file to Supabase Storage and register it in hotel_images.
+ * Register a pre-uploaded image URL in hotel_images.
  * If is_primary is true, the existing primary image for the hotel is demoted first.
  */
 export async function addImage(
   hotelId: string,
-  buffer:  Buffer,
   dto:     AddImageDto,
 ): Promise<unknown> {
   await assertHotelExists(hotelId);
 
-  const path = storagePath();
-  const compressed = await compressImage(buffer);
-
-  const { error: uploadError } = await supabase.storage
-    .from(BUCKET)
-    .upload(path, compressed, { contentType: 'image/jpeg', upsert: false });
-
-  if (uploadError) throw new AppError(`Storage upload failed: ${uploadError.message}`, 500);
-
-  const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
-
   return prisma.$transaction(async (tx: TxClient) => {
-    // Demote existing primary when this one is marked primary
     if (dto.is_primary) {
       await tx.hotelImage.updateMany({
         where: { hotel_id: hotelId, is_primary: true },
@@ -84,7 +58,6 @@ export async function addImage(
       });
     }
 
-    // Default sort_order to (max + 1) so new images go to the end
     if (dto.sort_order === undefined) {
       const last = await tx.hotelImage.findFirst({
         where:   { hotel_id: hotelId },
@@ -97,7 +70,7 @@ export async function addImage(
     return tx.hotelImage.create({
       data: {
         hotel_id:   hotelId,
-        url:        urlData.publicUrl,
+        url:        dto.url,
         is_primary: dto.is_primary  ?? false,
         sort_order: dto.sort_order,
         caption:    dto.caption,

@@ -2,30 +2,13 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
-import multer from 'multer';
 import validate from '../middlewares/validate';
 import requireAdmin from '../middlewares/requireAdmin';
-import { AppError } from '../middlewares/errorHandler';
 import * as hotelsController from '../controllers/hotelsController';
 import * as hotelImagesController from '../controllers/hotelImagesController';
 import * as inquiriesController from '../controllers/inquiriesController';
 
 const router = Router();
-
-// ─── Multer (image uploads on hotel routes) ───────────────────────────────────
-
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits:  { fileSize: 60 * 1024 * 1024 }, // 60 MB
-  fileFilter: (_req, file, cb) => {
-    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (allowed.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new AppError('Only jpeg, png, webp, and gif files are allowed.', 400));
-    }
-  },
-});
 
 // ─── Validation schemas ───────────────────────────────────────────────────────
 
@@ -163,6 +146,16 @@ const updateImageSchema = z.object({
   query: z.object({}).passthrough(),
 });
 
+const addImageSchema = z.object({
+  params: z.object({ hotelId: z.string().uuid('hotelId must be a valid UUID') }),
+  body: z.object({
+    url:        z.string().url('url must be a valid URL'),
+    alt_text:   z.string().max(300).optional(),
+    is_primary: z.boolean().optional(),
+  }),
+  query: z.object({}).passthrough(),
+});
+
 const reorderImagesSchema = z.object({
   params: z.object({ hotelId: z.string().uuid() }),
   body: z.object({
@@ -195,8 +188,7 @@ router.delete('/:id', requireAdmin, validate(uuidParam),       hotelsController.
 // Hotel gallery — admin write
 router.post(
   '/:hotelId/images',
-  validate(hotelImageParams),
-  upload.single('file'),
+  validate(addImageSchema),
   hotelImagesController.addImage,
 );
 router.patch(

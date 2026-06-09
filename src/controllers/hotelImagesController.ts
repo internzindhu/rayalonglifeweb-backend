@@ -1,7 +1,6 @@
 // Hotel images controller — maps HTTP requests to hotelImagesService calls
 
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../middlewares/errorHandler';
 import * as hotelImagesService from '../services/hotelImagesService';
 
 export async function listImages(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -15,18 +14,16 @@ export async function listImages(req: Request, res: Response, next: NextFunction
 
 export async function addImage(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    if (!req.file) throw new AppError('No file provided.', 400);
-
     const dto = {
-      is_primary:  req.body.is_primary === 'true' || req.body.is_primary === true,
-      sort_order:  req.body.sort_order !== undefined ? parseInt(req.body.sort_order, 10) : undefined,
-      caption:     req.body.caption   ?? undefined,
-      alt_text:    req.body.alt_text  ?? undefined,
+      url:         req.body.url        as string,
+      is_primary:  req.body.is_primary ?? false,
+      sort_order:  req.body.sort_order,
+      caption:     req.body.caption,
+      alt_text:    req.body.alt_text,
     };
 
     const image = await hotelImagesService.addImage(
       req.params.hotelId,
-      req.file.buffer,
       dto,
     );
 
