@@ -108,7 +108,7 @@ export async function sendConsultationAdminEmail(c: ConsultationEmailData): Prom
       row('Comments', c.comment),
     ].join(''))}
   `;
-  await send(env.ADMIN_EMAIL, `New Consultation Request: ${c.name}`, html);
+  await send(env.ADMIN_EMAIL_2, `New Consultation Request: ${c.name}`, html);
 }
 
 export async function sendConsultationUserEmail(c: ConsultationEmailData): Promise<void> {
@@ -203,4 +203,42 @@ export async function sendVoucherReceiverEmail(v: VoucherEmailData): Promise<voi
     <p style="font-family:sans-serif;">A RAYA wellness gift voucher has been ordered for you. We'll be in touch with the voucher details shortly.</p>
   `;
   await send(v.receiver_email, `A gift for you from ${v.sender_full_name} — RAYA`, html);
+}
+
+// ─── Call an Expert ───────────────────────────────────────────────────────────
+
+export interface CallExpertEmailData {
+  name: string;
+  email: string;
+  phone: string;
+}
+
+export async function sendCallExpertAdminEmail(c: CallExpertEmailData): Promise<void> {
+  const html = `
+    <h2 style="font-family:sans-serif;">New Call Expert Request</h2>
+    ${table([
+      row('Name', c.name),
+      row('Email', c.email),
+      row('Phone', c.phone),
+    ].join(''))}
+  `;
+  await send(env.ADMIN_EMAIL, `New Call Request: ${c.name}`, html);
+}
+
+// ─── Questionnaire ────────────────────────────────────────────────────────────
+
+export interface QuestionnaireEmailData {
+  email: string;
+  answers: Record<string, unknown>;
+}
+
+export async function sendQuestionnaireAdminEmail(q: QuestionnaireEmailData): Promise<void> {
+  const answerRows = Object.entries(q.answers)
+    .map(([question, answer]) => row(question, Array.isArray(answer) ? answer.join(', ') : String(answer ?? '')))
+    .join('');
+  const html = `
+    <h2 style="font-family:sans-serif;">New Questionnaire Submission</h2>
+    ${table(row('Email', q.email) + answerRows)}
+  `;
+  await send(env.ADMIN_EMAIL, `New Questionnaire from ${q.email}`, html);
 }

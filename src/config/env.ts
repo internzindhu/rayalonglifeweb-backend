@@ -17,6 +17,7 @@ export const env = {
   RESEND_API_KEY:            requireVar('RESEND_API_KEY'),
   EMAIL_FROM:                requireVar('EMAIL_FROM'),
   ADMIN_EMAIL:               requireVar('ADMIN_EMAIL'),
+  ADMIN_EMAIL_2:             requireVar('ADMIN_EMAIL_2'),
   PORT:                      parseInt(process.env.PORT ?? '3000', 10),
   NODE_ENV:                  process.env.NODE_ENV ?? 'development',
 } as const;

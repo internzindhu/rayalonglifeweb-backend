@@ -12,6 +12,7 @@ import vouchersRouter from './routes/vouchers';
 import questionnaireRouter from './routes/questionnaire';
 import lookupsRouter from './routes/lookups';
 import uploadsRouter from './routes/uploads';
+import callExpertRouter from './routes/call-expert';
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.use('/api/vouchers', vouchersRouter);
 app.use('/api/questionnaire', questionnaireRouter);
 app.use('/api/lookups', lookupsRouter);
 app.use('/api/uploads', uploadsRouter);
+app.use('/api/call-expert', callExpertRouter);
 
 // Health check
 app.get('/health', (_req: Request, res: Response) => {

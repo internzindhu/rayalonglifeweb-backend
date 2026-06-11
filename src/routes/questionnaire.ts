@@ -11,6 +11,7 @@ const router = Router();
 
 const createSubmissionSchema = z.object({
   body: z.object({
+    email:       z.string().email().optional(),
     answers:     z.record(z.unknown()),
     result_type: z.string().optional(),
   }),

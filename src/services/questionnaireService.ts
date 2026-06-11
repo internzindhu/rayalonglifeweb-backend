@@ -6,6 +6,7 @@ import type { JsonValue } from '@prisma/client/runtime/library';
 import { parsePagination, toPrismaSkipTake, buildMeta, PaginatedResult } from '../utils/pagination';
 
 export interface CreateQuestionnaireDto {
+  email?: string;
   answers: JsonValue;
   result_type?: string;
 }
@@ -18,6 +19,7 @@ export interface ListQuestionnaireQuery {
 export async function createSubmission(dto: CreateQuestionnaireDto) {
   return prisma.questionnaireSubmission.create({
     data: {
+      email:       dto.email ?? null,
       answers:     dto.answers === null ? Prisma.JsonNull : dto.answers,
       result_type: dto.result_type ?? null,
     },

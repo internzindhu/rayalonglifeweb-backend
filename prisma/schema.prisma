@@ -374,10 +374,22 @@ model Voucher {
 
 model QuestionnaireSubmission {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email       String?
   answers     Json
   result_type String?
   created_at  DateTime @default(now()) @db.Timestamptz(6)
 
   @@index([created_at(sort: Desc)], map: "questionnaire_created_at_idx")
   @@map("questionnaire_submissions")
+}
+
+model CallAnExpertForm {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  phone      String
+  name       String
+  email      String
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([created_at(sort: Desc)])
+  @@map("call_an_expert_form")
 }
