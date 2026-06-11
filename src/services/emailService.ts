@@ -205,6 +205,17 @@ export async function sendVoucherReceiverEmail(v: VoucherEmailData): Promise<voi
   await send(v.receiver_email, `A gift for you from ${v.sender_full_name} — RAYA`, html);
 }
 
+// ─── Newsletter ───────────────────────────────────────────────────────────────
+
+export async function sendNewsletterWelcomeEmail(email: string): Promise<void> {
+  const html = `
+    <h2 style="font-family:sans-serif;">Welcome to The RAYA Letter!</h2>
+    <p style="font-family:sans-serif;">Thank you for subscribing. Your first issue arrives next month — ancient wisdom for modern lives, delivered once a month.</p>
+    <p style="font-family:sans-serif;color:#666;">If you didn't subscribe, you can safely ignore this email.</p>
+  `;
+  await send(email, 'Welcome to The RAYA Letter', html);
+}
+
 // ─── Call an Expert ───────────────────────────────────────────────────────────
 
 export interface CallExpertEmailData {
