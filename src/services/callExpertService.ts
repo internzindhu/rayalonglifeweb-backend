@@ -5,14 +5,18 @@ export interface CreateCallExpertDto {
   phone: string;
   name: string;
   email: string;
+  scheduled_date?: string;
+  scheduled_slot?: string;
 }
 
 export async function createCallExpert(dto: CreateCallExpertDto) {
   return prisma.callAnExpertForm.create({
     data: {
-      phone: dto.phone,
-      name:  dto.name,
-      email: dto.email,
+      phone:          dto.phone,
+      name:           dto.name,
+      email:          dto.email,
+      scheduled_date: dto.scheduled_date ?? null,
+      scheduled_slot: dto.scheduled_slot ?? null,
     },
   });
 }

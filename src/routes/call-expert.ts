@@ -9,9 +9,11 @@ const router = Router();
 
 const createSchema = z.object({
   body: z.object({
-    phone: z.string().min(1),
-    name:  z.string().min(1),
-    email: z.string().email(),
+    phone:          z.string().min(1),
+    name:           z.string().min(1),
+    email:          z.string().email(),
+    scheduled_date: z.string().optional(),
+    scheduled_slot: z.string().optional(),
   }),
   query:  z.object({}).optional(),
   params: z.object({}).optional(),

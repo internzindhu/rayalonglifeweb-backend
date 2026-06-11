@@ -211,18 +211,26 @@ export interface CallExpertEmailData {
   name: string;
   email: string;
   phone: string;
+  scheduled_date?: string;
+  scheduled_slot?: string;
 }
 
 export async function sendCallExpertAdminEmail(c: CallExpertEmailData): Promise<void> {
+  const isScheduled = !!(c.scheduled_date && c.scheduled_slot);
+  const subject = isScheduled
+    ? `Scheduled Call: ${c.name} — ${c.scheduled_date} ${c.scheduled_slot}`
+    : `New Call Request: ${c.name}`;
   const html = `
-    <h2 style="font-family:sans-serif;">New Call Expert Request</h2>
+    <h2 style="font-family:sans-serif;">${isScheduled ? 'Scheduled Call Request' : 'New Call Expert Request'}</h2>
     ${table([
       row('Name', c.name),
       row('Email', c.email),
       row('Phone', c.phone),
+      row('Scheduled Date', c.scheduled_date),
+      row('Scheduled Slot', c.scheduled_slot),
     ].join(''))}
   `;
-  await send(env.ADMIN_EMAIL, `New Call Request: ${c.name}`, html);
+  await send(env.ADMIN_EMAIL, subject, html);
 }
 
 // ─── Questionnaire ────────────────────────────────────────────────────────────

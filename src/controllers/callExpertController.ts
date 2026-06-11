@@ -4,9 +4,9 @@ import * as emailService from '../services/emailService';
 
 export async function createCallExpert(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const { phone, name, email } = req.body;
-    const record = await callExpertService.createCallExpert({ phone, name, email });
-    emailService.sendCallExpertAdminEmail({ phone, name, email }).catch(() => {});
+    const { phone, name, email, scheduled_date, scheduled_slot } = req.body;
+    const record = await callExpertService.createCallExpert({ phone, name, email, scheduled_date, scheduled_slot });
+    emailService.sendCallExpertAdminEmail({ phone, name, email, scheduled_date, scheduled_slot }).catch(() => {});
     res.status(201).json({ success: true, message: 'Request received.', data: record });
   } catch (err) {
     next(err);
