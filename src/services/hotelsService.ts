@@ -110,14 +110,25 @@ export const hotelListInclude = {
     take:    1,
   },
   facilities: {
-    include: { facility: { select: { id: true, name: true } } },
-    take:    4,
+    select: { facility_id: true, facility: { select: { id: true, name: true } } },
+  },
+  activities:      { select: { activity_id: true } },
+  meal_plans:      { select: { meal_plan_id: true } },
+  cuisine_types:   { select: { cuisine_type_id: true } },
+  dining_features: { select: { dining_feature_id: true } },
+  room_features:   { select: { room_feature_id: true } },
+  restrictions:    { select: { restriction_id: true } },
+  property_types: {
+    select: { property_type_id: true, property_type: { select: { id: true, name: true } } },
   },
   setting_types: {
     include: { setting_type: { select: { id: true, name: true } } },
   },
   wellness_offerings: {
-    include: { wellness_offering: { select: { id: true, name: true } } },
+    select: {
+      wellness_offering_id: true,
+      wellness_offering: { select: { id: true, name: true } },
+    },
   },
   monthly_prices: {
     orderBy: { valid_from: 'asc' as const },
