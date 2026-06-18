@@ -50,6 +50,14 @@ model Hotel {
   highlights             String[]
   google_maps_url        String?
   dining_features_raw    String?
+  ayurveda_description      String?
+  dining_description        String?
+  accommodation_description String?
+  location_description      String?
+  good_to_know              String?
+  package_breakdown         String?
+  inclusions                String?
+  room_categories           String?
   activities             HotelActivity[]
   cuisine_types          HotelCuisineType[]
   dining_features        HotelDiningFeature[]
