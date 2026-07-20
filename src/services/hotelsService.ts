@@ -153,6 +153,9 @@ export const hotelFullInclude = {
   monthly_prices: {
     orderBy: { valid_from: 'asc' as const },
   },
+  packages: {
+    orderBy: { sort_order: 'asc' as const },
+  },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

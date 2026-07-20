@@ -56,17 +56,10 @@ const ICON_MAIL_WHITE = svgUri(
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>`
 );
 
-const ICON_FILE_SEARCH_PURPLE = svgUri(
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${BRAND_PURPLE}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M4.268 21a2 2 0 0 0 1.727 1H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v3"/><path d="m9 18-1.5-1.5"/><circle cx="5" cy="14" r="3"/></svg>`
-);
+const ICON_FILE_SEARCH_PURPLE = 'https://www.rayalonglife.com/reviewEmail.png';
 
-const ICON_GAUGE_PURPLE = svgUri(
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${BRAND_PURPLE}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>`
-);
-
-const ICON_CALENDAR_CHECK_PURPLE = svgUri(
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${BRAND_PURPLE}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>`
-);
+const ICON_GAUGE_PURPLE = 'https://www.rayalonglife.com/expertEmail.png';
+const ICON_CALENDAR_CHECK_PURPLE = 'https://www.rayalonglife.com/planEmail.png';
 
 const ICON_FACEBOOK_WHITE = svgUri(
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffffff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`
@@ -77,9 +70,9 @@ const ICON_INSTAGRAM_WHITE = svgUri(
 );
 
 const HEADER_WAVE = svgUri(
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 42" preserveAspectRatio="none">` +
-    `<path d="M0,0 C60,10 140,38 200,26 C260,14 340,14 400,26 C460,38 540,10 600,0 L600,0 L0,0 Z" fill="${BRAND_PURPLE}"/>` +
-    `<path d="M0,4 C60,14 140,42 200,30 C260,18 340,18 400,30 C460,42 540,14 600,4" fill="none" stroke="${BRAND_GOLD}" stroke-width="2"/>` +
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 60" preserveAspectRatio="none">` +
+    `<path d="M0,0 C60,14 140,52 200,36 C260,22 340,22 400,36 C460,52 540,14 600,0 L600,0 L0,0 Z" fill="${BRAND_PURPLE}"/>` +
+    `<path d="M0,4 C60,18 140,56 200,40 C260,26 340,26 400,40 C460,56 540,18 600,4" fill="none" stroke="${BRAND_GOLD}" stroke-width="2"/>` +
   `</svg>`
 );
 
@@ -244,7 +237,7 @@ export function buildConsultationUserEmailHtml(c: ConsultationEmailData): string
             </tr>
             <tr>
               <td style="line-height:0;font-size:0;">
-                <img src="${HEADER_WAVE}" width="600" height="42" alt="" style="display:block;width:100%;height:auto;" />
+                <img src="${HEADER_WAVE}" width="600" height="60" alt="" style="display:block;width:100%;height:auto;" />
               </td>
             </tr>
 
@@ -280,9 +273,11 @@ export function buildConsultationUserEmailHtml(c: ConsultationEmailData): string
                     <td style="padding:32px 20px;">
                       <table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto 28px;">
                         <tr>
-                          <td style="width:36px;border-top:1px solid ${BRAND_GOLD};font-size:0;line-height:0;">&nbsp;</td>
+                          <td style="width:10px;text-align:left;color:${BRAND_GOLD};font-size:10px;font-family:Arial,Helvetica,sans-serif;line-height:1;">&#9668;</td>
+                          <td style="width:26px;border-top:1px solid ${BRAND_GOLD};font-size:0;line-height:0;">&nbsp;</td>
                           <td style="padding:0 12px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:${BRAND_DARK};white-space:nowrap;">What happens next?</td>
-                          <td style="width:36px;border-top:1px solid ${BRAND_GOLD};font-size:0;line-height:0;">&nbsp;</td>
+                          <td style="width:26px;border-top:1px solid ${BRAND_GOLD};font-size:0;line-height:0;">&nbsp;</td>
+                          <td style="width:10px;text-align:right;color:${BRAND_GOLD};font-size:10px;font-family:Arial,Helvetica,sans-serif;line-height:1;">&#9658;</td>
                         </tr>
                       </table>
                       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
