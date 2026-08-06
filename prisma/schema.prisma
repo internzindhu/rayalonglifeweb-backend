@@ -149,25 +149,28 @@ model RoomFeature {
 }
 
 model DiningFeature {
-  id     Int                  @id @default(autoincrement())
-  name   String               @unique
-  hotels HotelDiningFeature[]
+  id         Int                  @id @default(autoincrement())
+  name       String               @unique
+  definition String?
+  hotels     HotelDiningFeature[]
 
   @@map("dining_features")
 }
 
 model MealPlan {
-  id     Int             @id @default(autoincrement())
-  name   String          @unique
-  hotels HotelMealPlan[]
+  id         Int             @id @default(autoincrement())
+  name       String          @unique
+  definition String?
+  hotels     HotelMealPlan[]
 
   @@map("meal_plans")
 }
 
 model CuisineType {
-  id     Int                @id @default(autoincrement())
-  name   String             @unique
-  hotels HotelCuisineType[]
+  id         Int                @id @default(autoincrement())
+  name       String             @unique
+  definition String?
+  hotels     HotelCuisineType[]
 
   @@map("cuisine_types")
 }
@@ -205,9 +208,10 @@ model SettingType {
 }
 
 model WellnessOffering {
-  id     Int                     @id @default(autoincrement())
-  name   String                  @unique
-  hotels HotelWellnessOffering[]
+  id         Int                     @id @default(autoincrement())
+  name       String                  @unique
+  definition String?
+  hotels     HotelWellnessOffering[]
 
   @@map("wellness_offerings")
 }
