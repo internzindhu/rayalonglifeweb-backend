@@ -77,3 +77,12 @@ export async function updateConsultationStatus(req: Request, res: Response, next
     next(err);
   }
 }
+
+export async function deleteConsultation(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    await consultationsService.deleteConsultation(req.params.id);
+    res.status(200).json({ success: true, message: 'Consultation deleted.' });
+  } catch (err) {
+    next(err);
+  }
+}

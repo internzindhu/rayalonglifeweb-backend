@@ -19,7 +19,14 @@ const createSchema = z.object({
   params: z.object({}).optional(),
 });
 
+const idParamSchema = z.object({
+  body: z.object({}).optional(),
+  query: z.object({}).optional(),
+  params: z.object({ id: z.string().uuid() }),
+});
+
 router.post('/', leadCaptureRateLimit, validate(createSchema), callExpertController.createCallExpert);
 router.get('/', requireAdmin, callExpertController.listCallExperts);
+router.delete('/:id', requireAdmin, validate(idParamSchema), callExpertController.deleteCallExpert);
 
 export default router;

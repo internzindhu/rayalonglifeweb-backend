@@ -64,3 +64,9 @@ export async function updateConsultationStatus(id: string, status: string) {
   if (!existing) throw new AppError(`Consultation with id "${id}" not found.`, 404);
   return prisma.consultation.update({ where: { id }, data: { status } });
 }
+
+export async function deleteConsultation(id: string): Promise<void> {
+  const existing = await prisma.consultation.findUnique({ where: { id } });
+  if (!existing) throw new AppError(`Consultation with id "${id}" not found.`, 404);
+  await prisma.consultation.delete({ where: { id } });
+}

@@ -51,8 +51,15 @@ const statusSchema = z.object({
   params: z.object({ id: z.string().uuid() }),
 });
 
+const idParamSchema = z.object({
+  body: z.object({}).optional(),
+  query: z.object({}).optional(),
+  params: z.object({ id: z.string().uuid() }),
+});
+
 router.post('/', leadCaptureRateLimit, validate(createConsultationSchema), consultationsController.createConsultation);
 router.get('/', requireAdmin, consultationsController.listConsultations);
 router.patch('/:id/status', requireAdmin, validate(statusSchema), consultationsController.updateConsultationStatus);
+router.delete('/:id', requireAdmin, validate(idParamSchema), consultationsController.deleteConsultation);
 
 export default router;

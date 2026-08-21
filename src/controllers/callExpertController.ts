@@ -21,3 +21,12 @@ export async function listCallExperts(req: Request, res: Response, next: NextFun
     next(err);
   }
 }
+
+export async function deleteCallExpert(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    await callExpertService.deleteCallExpert(req.params.id);
+    res.status(200).json({ success: true, message: 'Request deleted.' });
+  } catch (err) {
+    next(err);
+  }
+}

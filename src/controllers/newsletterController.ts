@@ -21,3 +21,12 @@ export async function listSubscribers(req: Request, res: Response, next: NextFun
     next(err);
   }
 }
+
+export async function deleteSubscriber(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    await newsletterService.deleteSubscriber(req.params.id);
+    res.status(200).json({ success: true, message: 'Subscriber deleted.' });
+  } catch (err) {
+    next(err);
+  }
+}

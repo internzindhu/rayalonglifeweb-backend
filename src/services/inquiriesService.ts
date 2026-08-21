@@ -102,3 +102,9 @@ export async function updateInquiryStatus(id: string, status: string) {
   if (!existing) throw new AppError(`Inquiry with id "${id}" not found.`, 404);
   return prisma.inquiry.update({ where: { id }, data: { status } });
 }
+
+export async function deleteInquiry(id: string): Promise<void> {
+  const existing = await prisma.inquiry.findUnique({ where: { id } });
+  if (!existing) throw new AppError(`Inquiry with id "${id}" not found.`, 404);
+  await prisma.inquiry.delete({ where: { id } });
+}

@@ -1,4 +1,5 @@
 import prisma from '../config/database';
+import { AppError } from '../middlewares/errorHandler';
 import { parsePagination, toPrismaSkipTake, buildMeta, PaginatedResult } from '../utils/pagination';
 
 export async function subscribe(email: string) {
@@ -21,4 +22,10 @@ export async function listSubscribers(
   ]);
 
   return { data: records, meta: buildMeta(total, pagination) };
+}
+
+export async function deleteSubscriber(id: string): Promise<void> {
+  const existing = await prisma.newsletterSubscriber.findUnique({ where: { id } });
+  if (!existing) throw new AppError(`Newsletter subscriber with id "${id}" not found.`, 404);
+  await prisma.newsletterSubscriber.delete({ where: { id } });
 }

@@ -97,3 +97,12 @@ export async function updateInquiryStatus(req: Request, res: Response, next: Nex
     next(err);
   }
 }
+
+export async function deleteInquiry(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    await inquiriesService.deleteInquiry(req.params.id);
+    res.status(200).json({ success: true, message: 'Inquiry deleted.' });
+  } catch (err) {
+    next(err);
+  }
+}

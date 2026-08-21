@@ -1,4 +1,5 @@
 import prisma from '../config/database';
+import { AppError } from '../middlewares/errorHandler';
 import { parsePagination, toPrismaSkipTake, buildMeta, PaginatedResult } from '../utils/pagination';
 
 export interface CreateCallExpertDto {
@@ -33,4 +34,10 @@ export async function listCallExperts(
   ]);
 
   return { data: records, meta: buildMeta(total, pagination) };
+}
+
+export async function deleteCallExpert(id: string): Promise<void> {
+  const existing = await prisma.callAnExpertForm.findUnique({ where: { id } });
+  if (!existing) throw new AppError(`Call an Expert request with id "${id}" not found.`, 404);
+  await prisma.callAnExpertForm.delete({ where: { id } });
 }
