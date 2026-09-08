@@ -50,6 +50,8 @@ model Hotel {
   highlights             String[]
   google_maps_url        String?
   dining_features_raw    String?
+  latitude               Decimal?                @db.Decimal
+  longitude              Decimal?                @db.Decimal
   ayurveda_description      String?
   dining_description        String?
   accommodation_description String?
