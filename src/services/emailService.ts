@@ -470,6 +470,70 @@ export async function sendCallExpertAdminEmail(c: CallExpertEmailData): Promise<
   await send(env.ADMIN_EMAIL, subject, html);
 }
 
+// ─── Newsletter broadcasts ──────────────────────────────────────────────────
+
+/**
+ * Wraps a plain-text body (paragraphs separated by a blank line) in the
+ * brand's HTML shell for admin-composed newsletter broadcasts. Resend
+ * replaces {{{RESEND_UNSUBSCRIBE_URL}}} with a working per-recipient
+ * unsubscribe link at send time.
+ */
+export function buildBroadcastHtml(subject: string, bodyText: string): string {
+  const paragraphs = bodyText
+    .split(/\n\n+/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => escapeHtml(p).replace(/\n/g, '<br/>'))
+    .map(
+      (p) =>
+        `<p style="margin:0 0 18px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:24px;color:${BRAND_DARK};">${p}</p>`,
+    )
+    .join('');
+
+  return `
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body style="margin:0;padding:0;background:#EDEDED;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EDEDED;">
+      <tr>
+        <td align="center" style="padding:32px 16px;">
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background:#ffffff;">
+            <tr>
+              <td style="background:${BRAND_PURPLE};padding:36px 24px 26px;" align="center">
+                <img src="${LOGO_URL}" width="150" alt="Raya Longlife" style="display:block;max-width:150px;" />
+              </td>
+            </tr>
+            <tr>
+              <td style="line-height:0;font-size:0;">
+                <img src="${HEADER_WAVE}" width="600" height="60" alt="" style="display:block;width:100%;height:auto;" />
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:40px 32px 8px;">
+                <h1 style="margin:0 0 24px;font-family:Georgia,'Times New Roman',serif;font-size:24px;line-height:1.3;color:${BRAND_DARK};">${escapeHtml(subject)}</h1>
+                ${paragraphs}
+              </td>
+            </tr>
+            <tr>
+              <td style="background:${BRAND_LAVENDER};padding:24px 32px;text-align:center;">
+                <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#6B7280;">
+                  You're receiving this because you subscribed to The RAYA Letter.
+                  <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:${BRAND_PURPLE};">Unsubscribe</a>
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
 // ─── Questionnaire ────────────────────────────────────────────────────────────
 
 export interface QuestionnaireEmailData {

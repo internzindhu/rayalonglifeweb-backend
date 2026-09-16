@@ -14,6 +14,7 @@ import lookupsRouter from './routes/lookups';
 import uploadsRouter from './routes/uploads';
 import callExpertRouter from './routes/call-expert';
 import newsletterRouter from './routes/newsletter';
+import emailCampaignsRouter from './routes/emailCampaigns';
 
 const app = express();
 
@@ -58,6 +59,7 @@ app.use('/api/lookups', lookupsRouter);
 app.use('/api/uploads', uploadsRouter);
 app.use('/api/call-expert', callExpertRouter);
 app.use('/api/newsletter', newsletterRouter);
+app.use('/api/email-campaigns', emailCampaignsRouter);
 
 // Health check
 app.get('/health', (_req: Request, res: Response) => {
