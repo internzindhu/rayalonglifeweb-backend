@@ -79,6 +79,14 @@ export interface CreateHotelDto {
   slogan_line?:            string;
   unique_features?:        string;
   highlights?:             string[];
+  ayurveda_description?:      string;
+  dining_description?:        string;
+  accommodation_description?: string;
+  location_description?:      string;
+  good_to_know?:              string;
+  room_categories?:           string;
+  latitude?:               number;
+  longitude?:              number;
   price?:                  string;
   rating?:                 number;
   reviews_count?:          number;
@@ -314,6 +322,8 @@ export async function createHotel(dto: CreateHotelDto): Promise<unknown> {
     setting_type_ids      = [],
     property_type_ids     = [],
     rating,
+    latitude,
+    longitude,
     hotel_style_id,
     marketing_material,
     ...hotelData
@@ -323,7 +333,9 @@ export async function createHotel(dto: CreateHotelDto): Promise<unknown> {
     return tx.hotel.create({
       data: {
         ...hotelData,
-        rating:              rating !== undefined ? new Decimal(rating) : undefined,
+        rating:              rating   !== undefined ? new Decimal(rating)   : undefined,
+        latitude:            latitude !== undefined ? new Decimal(latitude) : undefined,
+        longitude:           longitude !== undefined ? new Decimal(longitude) : undefined,
         ...(hotel_style_id !== undefined && {
           hotel_style: { connect: { id: hotel_style_id } },
         }),
@@ -357,7 +369,7 @@ export async function updateHotel(id: string, dto: UpdateHotelDto): Promise<unkn
     facility_ids, activity_ids, meal_plan_ids, cuisine_type_ids,
     dining_feature_ids, room_feature_ids, restriction_ids,
     wellness_offering_ids, setting_type_ids, property_type_ids,
-    rating, hotel_style_id, marketing_material, ...hotelData
+    rating, latitude, longitude, hotel_style_id, marketing_material, ...hotelData
   } = dto;
 
   return prisma.$transaction(async (tx: TxClient) => {
@@ -407,7 +419,9 @@ export async function updateHotel(id: string, dto: UpdateHotelDto): Promise<unkn
       where:   { id },
       data:    {
         ...hotelData,
-        rating: rating !== undefined ? new Decimal(rating) : undefined,
+        rating:    rating    !== undefined ? new Decimal(rating)    : undefined,
+        latitude:  latitude  !== undefined ? new Decimal(latitude)  : undefined,
+        longitude: longitude !== undefined ? new Decimal(longitude) : undefined,
         ...(hotel_style_id !== undefined && {
           hotel_style: { connect: { id: hotel_style_id } },
         }),

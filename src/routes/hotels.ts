@@ -7,6 +7,7 @@ import requireAdmin from '../middlewares/requireAdmin';
 import * as hotelsController from '../controllers/hotelsController';
 import * as hotelImagesController from '../controllers/hotelImagesController';
 import * as hotelPricesController from '../controllers/hotelPricesController';
+import * as hotelPackagesController from '../controllers/hotelPackagesController';
 import * as inquiriesController from '../controllers/inquiriesController';
 
 const router = Router();
@@ -114,6 +115,14 @@ const createHotelSchema = z.object({
     slogan_line:             z.string().optional(),
     unique_features:         z.string().optional(),
     highlights:              z.array(z.string()).optional(),
+    ayurveda_description:      z.string().optional(),
+    dining_description:        z.string().optional(),
+    accommodation_description: z.string().optional(),
+    location_description:      z.string().optional(),
+    good_to_know:              z.string().optional(),
+    room_categories:           z.string().optional(),
+    latitude:                z.number().min(-90).max(90).optional(),
+    longitude:               z.number().min(-180).max(180).optional(),
     price:                   z.string().optional(),
     rating:                  z.number().min(0).max(5).optional(),
     reviews_count:           z.number().int().min(0).optional(),
@@ -208,6 +217,40 @@ const updatePriceSchema = z.object({
   query: z.object({}).passthrough(),
 });
 
+const packageListParams = z.object({
+  params: z.object({ hotelId: z.string().uuid() }),
+  query:  z.object({}).passthrough(),
+  body:   z.object({}).passthrough(),
+});
+
+const packageIdParams = z.object({
+  params: z.object({ hotelId: z.string().uuid(), packageId: z.string().uuid() }),
+  query:  z.object({}).passthrough(),
+  body:   z.object({}).passthrough(),
+});
+
+const createPackageSchema = z.object({
+  params: z.object({ hotelId: z.string().uuid() }),
+  body: z.object({
+    name:        z.string().min(1),
+    items:       z.array(z.string()).optional(),
+    group_label: z.string().optional(),
+    sort_order:  z.number().int().min(0).optional(),
+  }),
+  query: z.object({}).passthrough(),
+});
+
+const updatePackageSchema = z.object({
+  params: z.object({ hotelId: z.string().uuid(), packageId: z.string().uuid() }),
+  body: z.object({
+    name:        z.string().min(1).optional(),
+    items:       z.array(z.string()).optional(),
+    group_label: z.string().optional(),
+    sort_order:  z.number().int().min(0).optional(),
+  }),
+  query: z.object({}).passthrough(),
+});
+
 // ─── Public routes ────────────────────────────────────────────────────────────
 
 router.get('/',            validate(listHotelsSchema), hotelsController.listHotels);
@@ -273,6 +316,32 @@ router.delete(
   requireAdmin,
   validate(priceIdParams),
   hotelPricesController.deletePrice,
+);
+
+// Hotel packages
+router.get(
+  '/:hotelId/packages',
+  requireAdmin,
+  validate(packageListParams),
+  hotelPackagesController.listPackages,
+);
+router.post(
+  '/:hotelId/packages',
+  requireAdmin,
+  validate(createPackageSchema),
+  hotelPackagesController.createPackage,
+);
+router.patch(
+  '/:hotelId/packages/:packageId',
+  requireAdmin,
+  validate(updatePackageSchema),
+  hotelPackagesController.updatePackage,
+);
+router.delete(
+  '/:hotelId/packages/:packageId',
+  requireAdmin,
+  validate(packageIdParams),
+  hotelPackagesController.deletePackage,
 );
 
 export default router;
