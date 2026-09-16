@@ -472,13 +472,38 @@ export async function sendCallExpertAdminEmail(c: CallExpertEmailData): Promise<
 
 // ─── Newsletter broadcasts ──────────────────────────────────────────────────
 
+export interface BroadcastMediaItem {
+  type: 'image' | 'video';
+  url:  string;
+}
+
+function renderBroadcastMedia(media: BroadcastMediaItem[]): string {
+  return media
+    .map((m) => {
+      if (m.type === 'image') {
+        return `<div style="margin:0 0 20px;"><img src="${m.url}" width="536" alt="" style="display:block;width:100%;max-width:536px;height:auto;border-radius:8px;" /></div>`;
+      }
+      return `
+        <div style="margin:0 0 20px;text-align:center;">
+          <a href="${m.url}" style="display:inline-block;padding:14px 28px;background:${BRAND_PURPLE};color:#ffffff;text-decoration:none;border-radius:8px;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;">&#9654; Watch Video</a>
+        </div>`;
+    })
+    .join('');
+}
+
 /**
  * Wraps a plain-text body (paragraphs separated by a blank line) in the
  * brand's HTML shell for admin-composed newsletter broadcasts. Resend
  * replaces {{{RESEND_UNSUBSCRIBE_URL}}} with a working per-recipient
  * unsubscribe link at send time.
+ *
+ * `media` renders directly under the subject heading, before the body text —
+ * images/GIFs embed inline; videos render as a "Watch Video" button, since
+ * inline <video> playback isn't reliably supported across email clients.
  */
-export function buildBroadcastHtml(subject: string, bodyText: string): string {
+export function buildBroadcastHtml(subject: string, bodyText: string, media: BroadcastMediaItem[] = []): string {
+  const mediaHtml = media.length ? renderBroadcastMedia(media) : '';
+
   const paragraphs = bodyText
     .split(/\n\n+/)
     .map((p) => p.trim())
@@ -515,6 +540,7 @@ export function buildBroadcastHtml(subject: string, bodyText: string): string {
             <tr>
               <td style="padding:40px 32px 8px;">
                 <h1 style="margin:0 0 24px;font-family:Georgia,'Times New Roman',serif;font-size:24px;line-height:1.3;color:${BRAND_DARK};">${escapeHtml(subject)}</h1>
+                ${mediaHtml}
                 ${paragraphs}
               </td>
             </tr>

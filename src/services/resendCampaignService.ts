@@ -141,15 +141,22 @@ export interface BroadcastRecord {
   sent_at?: string | null;
 }
 
+/** Wraps a bare address in the brand display name unless it already has one. */
+function toDisplayFrom(from: string | undefined): string {
+  if (!from) return env.EMAIL_FROM;
+  return from.includes('<') ? from : `RAYA <${from}>`;
+}
+
 export async function createBroadcast(params: {
   audienceId: string;
   name: string;
   subject: string;
   html: string;
+  from?: string;
 }): Promise<BroadcastRecord> {
   const { data, error } = await resend.post<BroadcastRecord>('/broadcasts', {
     audience_id: params.audienceId,
-    from:        env.EMAIL_FROM,
+    from:        toDisplayFrom(params.from),
     subject:     params.subject,
     html:        params.html,
     name:        params.name,

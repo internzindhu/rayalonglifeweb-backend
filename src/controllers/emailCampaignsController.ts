@@ -89,12 +89,13 @@ export async function getBroadcast(req: Request, res: Response, next: NextFuncti
 
 export async function createBroadcast(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const { audienceId, subject, body, name } = req.body;
-    const html = buildBroadcastHtml(subject, body);
+    const { audienceId, subject, body, name, from, media } = req.body;
+    const html = buildBroadcastHtml(subject, body, media);
     const broadcast = await resendCampaignService.createBroadcast({
       audienceId,
       subject,
       html,
+      from,
       name: name || subject,
     });
     res.status(201).json({ success: true, data: broadcast });

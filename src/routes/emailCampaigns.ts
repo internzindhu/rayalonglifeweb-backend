@@ -53,6 +53,11 @@ const createBroadcastSchema = z.object({
     subject:    z.string().min(1).max(300),
     body:       z.string().min(1),
     name:       z.string().optional(),
+    from:       z.string().email().optional(),
+    media: z.array(z.object({
+      type: z.enum(['image', 'video']),
+      url:  z.string().url(),
+    })).max(10).optional(),
   }),
   query:  z.object({}).optional(),
   params: z.object({}).optional(),
