@@ -6,6 +6,7 @@ import validate from '../middlewares/validate';
 import requireAdmin from '../middlewares/requireAdmin';
 import * as hotelsController from '../controllers/hotelsController';
 import * as hotelImagesController from '../controllers/hotelImagesController';
+import * as hotelPricesController from '../controllers/hotelPricesController';
 import * as inquiriesController from '../controllers/inquiriesController';
 
 const router = Router();
@@ -167,6 +168,46 @@ const reorderImagesSchema = z.object({
   query: z.object({}).passthrough(),
 });
 
+const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'must be a date in YYYY-MM-DD format');
+
+const priceListParams = z.object({
+  params: z.object({ hotelId: z.string().uuid() }),
+  query:  z.object({}).passthrough(),
+  body:   z.object({}).passthrough(),
+});
+
+const priceIdParams = z.object({
+  params: z.object({ hotelId: z.string().uuid(), priceId: z.string().uuid() }),
+  query:  z.object({}).passthrough(),
+  body:   z.object({}).passthrough(),
+});
+
+const createPriceSchema = z.object({
+  params: z.object({ hotelId: z.string().uuid() }),
+  body: z.object({
+    valid_from: isoDate,
+    valid_to:   isoDate,
+    price:      z.number().min(0),
+    currency:   z.string().optional(),
+    occupancy:  z.string().optional(),
+    priority:   z.number().int().optional(),
+  }),
+  query: z.object({}).passthrough(),
+});
+
+const updatePriceSchema = z.object({
+  params: z.object({ hotelId: z.string().uuid(), priceId: z.string().uuid() }),
+  body: z.object({
+    valid_from: isoDate.optional(),
+    valid_to:   isoDate.optional(),
+    price:      z.number().min(0).optional(),
+    currency:   z.string().optional(),
+    occupancy:  z.string().optional(),
+    priority:   z.number().int().optional(),
+  }),
+  query: z.object({}).passthrough(),
+});
+
 // ─── Public routes ────────────────────────────────────────────────────────────
 
 router.get('/',            validate(listHotelsSchema), hotelsController.listHotels);
@@ -206,6 +247,32 @@ router.put(
   '/:hotelId/images/reorder',
   validate(reorderImagesSchema),
   hotelImagesController.reorderImages,
+);
+
+// Hotel pricing — date-ranged rate periods
+router.get(
+  '/:hotelId/prices',
+  requireAdmin,
+  validate(priceListParams),
+  hotelPricesController.listPrices,
+);
+router.post(
+  '/:hotelId/prices',
+  requireAdmin,
+  validate(createPriceSchema),
+  hotelPricesController.createPrice,
+);
+router.patch(
+  '/:hotelId/prices/:priceId',
+  requireAdmin,
+  validate(updatePriceSchema),
+  hotelPricesController.updatePrice,
+);
+router.delete(
+  '/:hotelId/prices/:priceId',
+  requireAdmin,
+  validate(priceIdParams),
+  hotelPricesController.deletePrice,
 );
 
 export default router;

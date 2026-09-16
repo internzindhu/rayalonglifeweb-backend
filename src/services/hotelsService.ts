@@ -296,6 +296,12 @@ export async function getRelatedHotels(id: string): Promise<unknown[]> {
 }
 
 export async function createHotel(dto: CreateHotelDto): Promise<unknown> {
+  // Pricing is managed exclusively via /api/hotels/:id/prices — strip it out
+  // here so a stray `monthly_prices` array in the payload (e.g. from an old
+  // admin client) can't reach Prisma, which expects a nested-write shape
+  // rather than a raw array for this relation.
+  delete (dto as unknown as Record<string, unknown>).monthly_prices;
+
   const {
     facility_ids          = [],
     activity_ids          = [],
@@ -343,6 +349,9 @@ export async function createHotel(dto: CreateHotelDto): Promise<unknown> {
 export async function updateHotel(id: string, dto: UpdateHotelDto): Promise<unknown> {
   const existing = await prisma.hotel.findUnique({ where: { id } });
   if (!existing) throw new AppError(`Hotel with id "${id}" not found.`, 404);
+
+  // See createHotel — pricing now lives at /api/hotels/:id/prices.
+  delete (dto as unknown as Record<string, unknown>).monthly_prices;
 
   const {
     facility_ids, activity_ids, meal_plan_ids, cuisine_type_ids,
